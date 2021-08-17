@@ -106,7 +106,12 @@ func calcGunFire(field *[][]string, eLook string, p *Player) {
 					if i != 0 {
 						// Scroll up and blow enemy
 						if (*field)[i-1][j] == eLook {
-							(*field)[i-1][j] = " "
+							if p.gunLvl == 4 {
+								// if we have "the big one" go straight through
+								(*field)[i-1][j] = p.gunLook
+							} else {
+								(*field)[i-1][j] = " "
+							}
 							p.points++
 						} else {
 							// Only scroll up
@@ -423,7 +428,7 @@ func main() {
 	field := genField(yField, xField)
 
 	// Setup player
-	p := Player{"A", xField / 2, 10, 1, "|", 0, 1}
+	p := Player{"A", xField / 2, 10, 3, "|", 0, 1}
 	field[yField-3][p.xPos] = p.look
 
 	// Setup Enemy
@@ -434,6 +439,7 @@ func main() {
 	keyPressed := "none"
 	bonusItem := ""
 	frozenTimer := 0
+	bigGunTimer := 1000
 	spawnCounter := 0
 	gunCounter := 0
 	waveCounter := 0
@@ -562,6 +568,15 @@ func main() {
 			if bonusRoll == 2 {
 				field[yField-3][rand.Intn(39-0)] = "F"
 				bonusItem = "F"
+			}
+		}
+
+		// Check if player has temporary "the BIG one" weapon
+		if p.gunLvl == 4 {
+			bigGunTimer--
+			if bigGunTimer == 0 {
+				p.gunLvl--
+				bigGunTimer = 1000
 			}
 		}
 
